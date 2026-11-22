@@ -145,6 +145,62 @@
     });
   }
 
+  /* ---------- Live demo dialogs ---------- */
+  function initDemoDialogs() {
+    $$('[data-demo]').forEach((button) => button.addEventListener('click', () => {
+      const dialog = document.getElementById(button.dataset.demo);
+      if (dialog && dialog.showModal) { dialog.showModal(); document.documentElement.classList.add('lock'); }
+    }));
+    $$('dialog.demo').forEach((dialog) => {
+      dialog.addEventListener('close', () => document.documentElement.classList.remove('lock'));
+      // Clicking the dark backdrop or a close button closes the demo
+      dialog.addEventListener('click', (e) => { if (e.target === dialog || e.target.closest('[data-close]')) dialog.close(); });
+    });
+  }
+
+  /* ---------- Demo 1: Matrix Operations ---------- */
+  function initMatrix() {
+// Fill size dropdowns (1 to 5) and build input grids
+['ar','ac','br','bc'].forEach(id=>{$('#'+id).innerHTML=[1,2,3,4,5].map(n=>`<option ${n===3?'selected':''}>${n}</option>`).join('');$('#'+id).onchange=build});
+function grid(el,r,c){el.style.gridTemplateColumns=`repeat(${c},56px)`;el.innerHTML=Array.from({length:r*c},(_,i)=>`<input type="number" step="any" value="${(i%c===Math.floor(i/c))?1:0}" aria-label="row ${Math.floor(i/c)+1} col ${i%c+1}">`).join('')}
+function build(){grid($('#ga'),+$('#ar').value,+$('#ac').value);grid($('#gb'),+$('#br').value,+$('#bc').value)}
+function read(el,r,c){const v=[...el.querySelectorAll('input')].map(i=>parseFloat(i.value)||0);return Array.from({length:r},(_,i)=>v.slice(i*c,i*c+c))}
+const A=()=>read($('#ga'),+$('#ar').value,+$('#ac').value),B=()=>read($('#gb'),+$('#br').value,+$('#bc').value);
+function det(m){if(m.length===1)return m[0][0];return m[0].reduce((s,x,j)=>s+(j%2?-1:1)*x*det(m.slice(1).map(r=>r.filter((_,k)=>k!==j))),0)}
+const ops={
+ add:(a,b)=>{if(a.length!==b.length||a[0].length!==b[0].length)throw'Addition needs both matrices to have the same size.';return a.map((r,i)=>r.map((x,j)=>x+b[i][j]))},
+ sub:(a,b)=>{if(a.length!==b.length||a[0].length!==b[0].length)throw'Subtraction needs both matrices to have the same size.';return a.map((r,i)=>r.map((x,j)=>x-b[i][j]))},
+ mul:(a,b)=>{if(a[0].length!==b.length)throw'Multiplication needs columns of A to equal rows of B.';return a.map(r=>b[0].map((_,j)=>r.reduce((s,x,k)=>s+x*b[k][j],0)))},
+ tr:a=>a[0].map((_,j)=>a.map(r=>r[j])),
+ det:a=>{if(a.length!==a[0].length)throw'Determinant needs a square matrix A.';return det(a)}};
+const fmt=n=>Math.round(n*1e4)/1e4;
+document.querySelectorAll('[data-op]').forEach(btn=>btn.onclick=()=>{$('#msg').textContent='';try{const res=ops[btn.dataset.op](A(),B());
+ $('#out').innerHTML=Array.isArray(res)?'<table>'+res.map(r=>'<tr>'+r.map(x=>`<td>${fmt(x)}</td>`).join('')+'</tr>').join('')+'</table>':`<p>Determinant = <b>${fmt(res)}</b></p>`}catch(e){$('#out').innerHTML='';$('#msg').textContent=e}});
+build();
+  }
+
+  /* ---------- Demo 2: Smart Student task tracker ---------- */
+  function initSmartStudent() {
+let tasks=[],study=0,filter='all';
+// Browser storage can be blocked, so every access is wrapped
+const load=()=>{try{tasks=JSON.parse(localStorage.getItem('ss-tasks')||'[]');study=+localStorage.getItem('ss-study')||0}catch(e){}};
+const save=()=>{try{localStorage.setItem('ss-tasks',JSON.stringify(tasks));localStorage.setItem('ss-study',study)}catch(e){}};
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function render(){
+ const done=tasks.filter(t=>t.done).length,late=tasks.filter(t=>!t.done&&t.due<today()).length;
+ $('#sT').textContent=tasks.length;$('#sD').textContent=done;$('#sP').textContent=tasks.length-done;$('#sO').textContent=late;
+ $('#bar').style.width=(tasks.length?done/tasks.length*100:0)+'%';$('#study').textContent=study;
+ const shown=tasks.filter(t=>filter==='all'||(filter==='done')===t.done).sort((a,b)=>a.due.localeCompare(b.due));
+ $('#empty').hidden=shown.length>0;
+ $('#list').innerHTML=shown.map(t=>`<li class="${t.done?'done':''}"><input type="checkbox" data-id="${t.id}" ${t.done?'checked':''} aria-label="Mark done"><div class="t"><b>${esc(t.title)}</b><br><span class="muted ${!t.done&&t.due<today()?'late':''}">${esc(t.subj||'General')} &middot; due ${t.due}${!t.done&&t.due<today()?' (overdue)':''}</span></div><span class="tag ${t.pri==='High'?'high':''}">${t.pri}</span><button class="alt" data-del="${t.id}" aria-label="Delete task">&times;</button></li>`).join('');}
+$('#f').onsubmit=e=>{e.preventDefault();tasks.push({id:Date.now(),title:$('#title').value.trim(),subj:$('#subj').value.trim(),due:$('#due').value,pri:$('#pri').value,done:false});e.target.reset();$('#pri').value='Medium';save();render()};
+$('#list').onclick=e=>{const d=e.target.dataset;if(d.del){tasks=tasks.filter(t=>t.id!=d.del)}else if(d.id){const t=tasks.find(t=>t.id==d.id);t.done=!t.done}else return;save();render()};
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filter=b.dataset.f;render()});
+$('#addStudy').onclick=()=>{const m=parseInt($('#mins').value);if(m>0){study+=m;$('#mins').value='';save();render()}};
+load();render();
+  }
+
   /* ---------- Boot ---------- */
   $('#year').textContent = new Date().getFullYear();
   initMenu();
@@ -152,4 +208,7 @@
   initReveal();
   initScrollState();
   initContactForm();
+  initDemoDialogs();
+  initMatrix();
+  initSmartStudent();
 })();

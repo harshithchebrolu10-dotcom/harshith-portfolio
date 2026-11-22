@@ -177,3 +177,46 @@ p { margin: 0 0 1rem; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .js .reveal { opacity: 1; transform: none; }
 }
+
+/* Disabled button look (used where a demo is not deployed yet) */
+.btn.disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+
+/* ===== Live demo dialogs (Matrix Operations, Smart Student) ===== */
+html.lock { overflow: hidden; }
+dialog.demo { width: min(900px, calc(100% - 1.5rem)); max-height: 90svh; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: #12121c; color: var(--text); overflow: hidden; }
+dialog.demo[open] { display: flex; flex-direction: column; }
+dialog.demo::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(4px); }
+.demo-head { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1.2rem; border-bottom: 1px solid var(--border); }
+.demo-head h3 { margin: 0; }
+.demo .close { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: .35rem .9rem; cursor: pointer; font: inherit; }
+.demo .close:hover { border-color: var(--blue); }
+.demo-body { padding: .5rem 1.2rem 1.4rem; overflow: auto; }
+.demo .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem; margin: 1rem 0; }
+.demo h2 { font-size: 1.1rem; margin: 0 0 .6rem; }
+.demo h2::after { display: none; }
+.demo-body input, .demo-body select { background: #0c0c12; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: .5rem; font: inherit; max-width: 100%; }
+.demo-body input:focus, .demo-body select:focus { outline: 2px solid var(--purple); }
+.demo-body button { border: 0; border-radius: 999px; padding: .55rem 1.1rem; font: 600 .9rem "Sora", sans-serif; color: #fff; background: var(--grad); cursor: pointer; }
+.demo-body button.alt { background: transparent; border: 1px solid var(--border); }
+.demo-body button:hover { filter: brightness(1.15); }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.derr { color: #f87171; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.demo .grid { display: grid; gap: 6px; margin: .6rem 0; overflow-x: auto; padding-bottom: 4px; }
+.demo .grid input { width: 56px; text-align: center; }
+.demo table { border-collapse: collapse; margin-top: .6rem; }
+.demo td { border: 1px solid var(--border); padding: .4rem .8rem; text-align: center; }
+.dstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: .6rem; }
+.dstats div { background: #0c0c12; border: 1px solid var(--border); border-radius: 10px; padding: .6rem; text-align: center; }
+.dstats b { display: block; font-size: 1.5rem; }
+.bar { height: 10px; background: #0c0c12; border-radius: 6px; overflow: hidden; margin-top: .8rem; }
+.bar i { display: block; height: 100%; width: 0; background: var(--grad); transition: width .4s; }
+.demo-body ul { list-style: none; padding: 0; margin: 0; }
+.demo-body li { display: flex; gap: .7rem; align-items: center; padding: .7rem 0; border-bottom: 1px solid var(--border); }
+.demo-body li:last-child { border: 0; }
+.demo-body li .t { flex: 1; min-width: 0; }
+.demo-body li.done .t b { text-decoration: line-through; opacity: .5; }
+.demo .tag { font-size: .75rem; padding: .1rem .6rem; border-radius: 6px; background: rgba(139, 92, 246, .2); }
+.demo .tag.high { background: rgba(248, 113, 113, .2); }
+.demo .late { color: #f87171; }
+.demo-body li button { padding: .3rem .7rem; }
